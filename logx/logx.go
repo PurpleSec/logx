@@ -49,6 +49,10 @@ type file struct {
 type Log interface {
 	// Print is kept for compatibility reasons. Print statements are info logs.
 	Print(string)
+	// SetLevel changes the current logging level of this Log instance.
+	SetLevel(Level)
+	// SetPrefix changes the current logging prefix of this Log instance.
+	SetPrefix(string)
 	// Info writes a information message to the Log instance.
 	Info(string, ...interface{})
 	// Error writes a error message to the Log instance.
@@ -128,6 +132,26 @@ func (s *Stack) Print(m string) {
 }
 func (l *stream) Print(m string) {
 	writeToLog(l.logWriter, l.logLevel, LDebug, stackDepth, m, nil)
+}
+
+// SetLevel changes the current logging level of this Log instance.
+func (s *Stack) SetLevel(n Level) {
+	for i := range *s {
+		(*s)[i].SetLevel(n)
+	}
+}
+func (l *stream) SetLevel(n Level) {
+	l.logLevel = n
+}
+
+// SetPrefix changes the current logging prefox of this Log instance.
+func (s *Stack) SetPrefix(p string) {
+	for i := range *s {
+		(*s)[i].SetPrefix(p)
+	}
+}
+func (l *stream) SetPrefix(p string) {
+	l.logWriter.SetPrefix(p)
 }
 func (l *stream) Writer() *log.Logger {
 	return l.logWriter
