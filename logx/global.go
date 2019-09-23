@@ -4,13 +4,8 @@ var (
 	// Global is the default Global logger.  This can be used instead of passing
 	// around a logging handle. All standard Log functions without a struct will go
 	// to this logger.
-	Global = NewConsole(LInfo)
+	Global = NewConsole(LWarning)
 )
-
-// Print writes a information message to the Log instance.
-func Print(m string) {
-	Global.Print(m)
-}
 
 // Info writes a information message to the Log instance.
 func Info(m string, v ...interface{}) {

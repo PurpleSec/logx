@@ -34,10 +34,6 @@ var (
 	LogDefaultOptions = log.Ldate | log.Ltime
 )
 
-// Stack is a type of Log that is an alias for an array where each Log
-// function will affect each Log instance in the array.
-type Stack []Log
-
 // Level is an alias of a byte that represents the current Log level.
 type Level uint8
 type file struct {
@@ -47,8 +43,6 @@ type file struct {
 
 // Log is an interface for any type of struct that supports standard Logging functions.
 type Log interface {
-	// Print is kept for compatibility reasons. Print statements are info logs.
-	Print(string)
 	// SetLevel changes the current logging level of this Log instance.
 	SetLevel(Level)
 	// SetPrefix changes the current logging prefix of this Log instance.
@@ -78,24 +72,9 @@ type handler interface {
 	Writer() *log.Logger
 }
 
-// Add appends the specified Log 'l' the Stack array.
-func (s *Stack) Add(l Log) {
-	if l == nil {
-		return
-	}
-	*s = append(*s, l)
-}
-
 // NewConsole returns a console logger that uses the LogConsoleFile writer.
 func NewConsole(l Level) Log {
 	return NewWriterOptions(l, LogDefaultOptions, LogConsoleFile)
-}
-
-// NewStack returns a Stack struct that contains the Log instances
-// specified in the 'l' vardict.
-func NewStack(l ...Log) *Stack {
-	s := Stack(l)
-	return &s
 }
 func (l *stream) Level() Level {
 	return l.logLevel
@@ -119,36 +98,8 @@ func (l Level) String() string {
 	}
 	return ""
 }
-
-// Print writes a information message to the Log instance.
-func (s *Stack) Print(m string) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LInfo, stackDepth+1, m, nil)
-		} else {
-			(*s)[i].Info(m)
-		}
-	}
-}
-func (l *stream) Print(m string) {
-	writeToLog(l.logWriter, l.logLevel, LDebug, stackDepth, m, nil)
-}
-
-// SetLevel changes the current logging level of this Log instance.
-func (s *Stack) SetLevel(n Level) {
-	for i := range *s {
-		(*s)[i].SetLevel(n)
-	}
-}
 func (l *stream) SetLevel(n Level) {
 	l.logLevel = n
-}
-
-// SetPrefix changes the current logging prefox of this Log instance.
-func (s *Stack) SetPrefix(p string) {
-	for i := range *s {
-		(*s)[i].SetPrefix(p)
-	}
 }
 func (l *stream) SetPrefix(p string) {
 	l.logWriter.SetPrefix(p)
@@ -174,74 +125,6 @@ func NewConsoleOptions(l Level, opts int) Log {
 func NewFile(l Level, file string) (Log, error) {
 	return NewFileOptions(l, LogDefaultOptions, true, file)
 }
-
-// Info writes a information message to the Log instance.
-func (s *Stack) Info(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LInfo, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Info(m, v...)
-		}
-	}
-}
-
-// Error writes a error message to the Log instance.
-func (s *Stack) Error(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LError, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Error(m, v...)
-		}
-	}
-}
-
-// Fatal writes a fatal message to the Log instance. This function
-// will result in the program exiting with a non-zero error code after being called.
-func (s *Stack) Fatal(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LFatal, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Fatal(m, v...)
-		}
-	}
-	os.Exit(1)
-}
-
-// Trace writes a tracing message to the Log instance.
-func (s *Stack) Trace(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LTrace, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Trace(m, v...)
-		}
-	}
-}
-
-// Printf writes a information message to the Log instance.
-func (s *Stack) Printf(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LInfo, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Info(m, v...)
-		}
-	}
-}
-
-// Debug writes a debugging message to the Log instan
-func (s *Stack) Debug(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LDebug, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Debug(m, v...)
-		}
-	}
-}
 func (l *stream) Info(m string, v ...interface{}) {
 	writeToLog(l.logWriter, l.logLevel, LInfo, stackDepth, m, v)
 }
@@ -260,17 +143,6 @@ func (l *stream) Debug(m string, v ...interface{}) {
 }
 func (l *stream) Printf(m string, v ...interface{}) {
 	writeToLog(l.logWriter, l.logLevel, LInfo, stackDepth, m, v)
-}
-
-// Warning writes a warning message to the Log instance.
-func (s *Stack) Warning(m string, v ...interface{}) {
-	for i := range *s {
-		if b, ok := (*s)[i].(handler); ok {
-			writeToLog(b.Writer(), b.Level(), LWarning, stackDepth+1, m, v)
-		} else {
-			(*s)[i].Warning(m, v...)
-		}
-	}
 }
 func (l *stream) Warning(m string, v ...interface{}) {
 	writeToLog(l.logWriter, l.logLevel, LWarning, stackDepth, m, v)
