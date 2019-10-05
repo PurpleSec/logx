@@ -25,19 +25,19 @@ const (
 )
 
 var (
-	// LogConsoleFile is a pointer to the output that all the console Log structs will use. This can be set to any
+	// Console is a pointer to the output that all the console Log structs will use. This can be set to any
 	// type of stream that can be implemented as a Writer, including NUL.
-	LogConsoleFile io.Writer = os.Stdout
-	// LogDefaultOptions is the default bitwise number that is used for new Log structs that are not
+	Console io.Writer = os.Stderr
+	// Defaults is the default bitwise number that is used for new Log structs that are not
 	// given an options number when created. This option number may be changed before running to affect
 	// runtime functions.
-	LogDefaultOptions = log.Ldate | log.Ltime
+	Defaults = log.Ldate | log.Ltime
 )
 
 // Level is an alias of a byte that represents the current Log level.
 type Level uint8
 type file struct {
-	logFile string
+	file string
 	stream
 }
 
@@ -64,20 +64,20 @@ type Log interface {
 	Warning(string, ...interface{})
 }
 type stream struct {
-	logLevel  Level
-	logWriter *log.Logger
+	w   *log.Logger
+	lvl Level
 }
 type handler interface {
 	Level() Level
 	Writer() *log.Logger
 }
 
-// NewConsole returns a console logger that uses the LogConsoleFile writer.
+// NewConsole returns a console logger that uses the Console writer.
 func NewConsole(l Level) Log {
-	return NewWriterOptions(l, LogDefaultOptions, LogConsoleFile)
+	return NewWriterOptions(l, Defaults, Console)
 }
 func (l *stream) Level() Level {
-	return l.logLevel
+	return l.lvl
 }
 
 // String returns the name of the current Level.
@@ -99,67 +99,67 @@ func (l Level) String() string {
 	return ""
 }
 func (l *stream) SetLevel(n Level) {
-	l.logLevel = n
+	l.lvl = n
 }
 func (l *stream) SetPrefix(p string) {
-	l.logWriter.SetPrefix(p)
+	l.w.SetPrefix(p)
 }
 func (l *stream) Writer() *log.Logger {
-	return l.logWriter
+	return l.w
 }
 
 // NewWriter returns a Log instance based on the Writer 'w' for the logging output.
 func NewWriter(l Level, w io.Writer) Log {
-	return NewWriterOptions(l, LogDefaultOptions, w)
+	return NewWriterOptions(l, Defaults, w)
 }
 
-// NewConsoleOptions returns a console logger using the LogConsoleFile file for console output and
+// NewConsoleOptions returns a console logger using the Console file for console output and
 // allows specifying non-default Logging options.
 func NewConsoleOptions(l Level, opts int) Log {
-	return NewWriterOptions(l, opts, LogConsoleFile)
+	return NewWriterOptions(l, opts, Console)
 }
 
 // NewFile will attempt to create a File backed Log instance that will write to file 's'.
 // This function will truncate the file before starting a new Log. If you need to append to a existing log file.
 // use the NewWriter function.
 func NewFile(l Level, file string) (Log, error) {
-	return NewFileOptions(l, LogDefaultOptions, true, file)
+	return NewFileOptions(l, Defaults, true, file)
 }
 func (l *stream) Info(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LInfo, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LInfo, stackDepth, m, v)
 }
 func (l *stream) Error(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LError, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LError, stackDepth, m, v)
 }
 func (l *stream) Fatal(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LFatal, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LFatal, stackDepth, m, v)
 	os.Exit(1)
 }
 func (l *stream) Trace(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LTrace, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LTrace, stackDepth, m, v)
 }
 func (l *stream) Debug(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LDebug, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LDebug, stackDepth, m, v)
 }
 func (l *stream) Printf(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LInfo, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LInfo, stackDepth, m, v)
 }
 func (l *stream) Warning(m string, v ...interface{}) {
-	writeToLog(l.logWriter, l.logLevel, LWarning, stackDepth, m, v)
+	writeToLog(l.w, l.lvl, LWarning, stackDepth, m, v)
 }
 
 // NewWriterOptions returns a Log instance based on the Writer 'w' for the logging output and
 // allows specifying non-default Logging options.
 func NewWriterOptions(l Level, opts int, w io.Writer) Log {
-	return &stream{logLevel: l, logWriter: log.New(w, "", opts)}
+	return &stream{w: log.New(w, "", opts), lvl: l}
 }
 
 // NewFileOptions will attempt to create a File backed Log instance that will write to file specified.
 // This function will truncate the file before starting a new Log. If you need to append to a existing log file.
 // use the NewWriter function. This function allows specifying non-default Logging options.
 func NewFileOptions(l Level, opts int, append bool, filepath string) (Log, error) {
-	i := &file{logFile: filepath}
-	i.logLevel = l
+	i := &file{file: filepath}
+	i.lvl = l
 	p := os.O_RDWR | os.O_CREATE
 	if append {
 		p |= os.O_TRUNC
@@ -168,7 +168,7 @@ func NewFileOptions(l Level, opts int, append bool, filepath string) (Log, error
 	if err != nil {
 		return nil, err
 	}
-	i.logWriter = log.New(w, "", opts)
+	i.w = log.New(w, "", opts)
 	return i, nil
 }
 func writeToLog(i *log.Logger, c Level, l Level, d uint8, m string, v []interface{}) {
