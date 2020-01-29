@@ -27,7 +27,7 @@ func TestLogging(_ *testing.T) {
 
 	l.Info("Information Log Entry!")
 
-	l.Warning("Warning LOg Entry!")
+	l.Warning("Warning Log Entry!")
 
-	l.Fatal("Fatal Log Entry!")
+	l.Error("Error Log Entry!")
 }
