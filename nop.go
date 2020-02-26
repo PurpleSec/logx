@@ -16,26 +16,39 @@
 
 package logx
 
-import "os"
+import (
+	"os"
+)
 
 var (
-	//Nop is a Log interface that can consume all types of
-	// logs but does not do anything (a NOP). This can be used similar
-	// to context.TODO or if logging is not needed and nil log instances are not
-	// avaliable.
-	Nop = nop{}
+	// NOP is a Logger that can consume all types of logs but does not do anything (a NOP).
+	// This can be used similar to context.TODO or if logging is not needed and nil log instances
+	// are not avaliable.
+	NOP = nop{}
 )
 
 type nop struct{}
 
-func (nop) Fatal(_ string, _ ...interface{}) {
-	os.Exit(1)
+func (nop) Level(_ Level) {
 }
-func (nop) SetLevel(_ Level)                   {}
-func (nop) SetPrefix(_ string)                 {}
-func (nop) Info(_ string, _ ...interface{})    {}
-func (nop) Error(_ string, _ ...interface{})   {}
-func (nop) Trace(_ string, _ ...interface{})   {}
-func (nop) Debug(_ string, _ ...interface{})   {}
-func (nop) Printf(_ string, _ ...interface{})  {}
-func (nop) Warning(_ string, _ ...interface{}) {}
+func (nop) Prefix(_ string) {
+}
+func (nop) Info(_ string, _ ...interface{}) {
+}
+func (nop) Fatal(_ string, _ ...interface{}) {
+	if FatalExits {
+		os.Exit(1)
+	}
+}
+func (nop) Error(_ string, _ ...interface{}) {
+}
+func (nop) Trace(_ string, _ ...interface{}) {
+}
+func (nop) Debug(_ string, _ ...interface{}) {
+}
+func (nop) Printf(_ string, _ ...interface{}) {
+}
+func (nop) Warning(_ string, _ ...interface{}) {
+}
+func (nop) Log(_ Level, _ int, _ string, _ ...interface{}) {
+}

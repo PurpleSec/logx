@@ -16,45 +16,92 @@
 
 package logx
 
-var (
-	// Global is the default Global logger.  This can be used instead of passing
-	// around a logging handle. All standard Log functions without a struct will go
-	// to this logger.
-	Global = NewConsole(LWarning)
-)
+// Global is the default Global loging instance.  This can be used instead of passing
+// around a logging handle. All standard Log* functions or functions with a nil struct
+// will go to this loging instance.
+var Global = Console()
 
-// Info writes a information message to the Log instance.
-func Info(m string, v ...interface{}) {
+// LogInfo writes a informational message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogInfo(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Info(m, v)
 }
 
-// Error writes a error message to the Log instance.
-func Error(m string, v ...interface{}) {
+// LogError writes a error message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogError(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Error(m, v)
 }
 
-// Fatal writes a fatal message to the Log instance. This function
-// will result in the program exiting with a non-zero error code after being called.
-func Fatal(m string, v ...interface{}) {
+// LogFatal writes a fatal message to the Global logger. This function will result in the program
+// exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogFatal(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Fatal(m, v)
 }
 
-// Trace writes a tracing message to the Log instance.
-func Trace(m string, v ...interface{}) {
+// LogTrace writes a tracing message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogTrace(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Trace(m, v)
 }
 
-// Debug writes a debugging message to the Log instance.
-func Debug(m string, v ...interface{}) {
+// LogDebug writes a debugging message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogDebug(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Debug(m, v)
 }
 
-// Printf writes a information message to the Log instance.
-func Printf(m string, v ...interface{}) {
-	Global.Printf(m, v)
-}
-
-// Warning writes a warning message to the Log instance.
-func Warning(m string, v ...interface{}) {
+// LogWarning writes a warning message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended to use a
+// direct function call on a logger or the Global logger instead.
+func LogWarning(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
 	Global.Warning(m, v)
 }
