@@ -40,10 +40,10 @@ type stream struct {
 func Console(o ...Option) Log {
 	return Writer(DefaultConsole, o...)
 }
-func (s *stream) Level(n Level) {
+func (s *stream) SetLevel(n Level) {
 	s.l = n
 }
-func (s *stream) Prefix(p string) {
+func (s *stream) SetPrefix(p string) {
 	s.SetPrefix(p)
 }
 

@@ -38,21 +38,24 @@ func Multiple(l ...Log) *Multi {
 	return &Multi{logs: l}
 }
 
-// Level changes the current logging level of this Log instance.
-func (m *Multi) Level(l Level) {
+// SetLevel changes the current logging level of this Log instance.
+func (m *Multi) SetLevel(l Level) {
 	for i := range m.logs {
-		m.logs[i].Level(l)
+		m.logs[i].SetLevel(l)
 	}
 }
 
-// Prefix changes the current logging prefox of this Log instance.
-func (m *Multi) Prefix(p string) {
+// SetPrefix changes the current logging prefox of this Log instance.
+func (m *Multi) SetPrefix(p string) {
 	for i := range m.logs {
-		m.logs[i].Prefix(p)
+		m.logs[i].SetPrefix(p)
 	}
 }
 
-// Info writes a information message to the Log instance.
+// Info writes a informational message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Info(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {
@@ -63,7 +66,10 @@ func (m *Multi) Info(s string, v ...interface{}) {
 	}
 }
 
-// Error writes a error message to the Log instance.
+// Error writes a error message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Error(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {
@@ -74,8 +80,11 @@ func (m *Multi) Error(s string, v ...interface{}) {
 	}
 }
 
-// Fatal writes a fatal message to the Log instance. This function
-// will result in the program exiting with a non-zero error code after being called.
+// Fatal writes a fatal message to the Global logger. This function will result in the program
+// exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Fatal(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {
@@ -91,7 +100,10 @@ func (m *Multi) Fatal(s string, v ...interface{}) {
 	}
 }
 
-// Trace writes a tracing message to the Log instance.
+// Trace writes a tracing message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Trace(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {
@@ -102,7 +114,10 @@ func (m *Multi) Trace(s string, v ...interface{}) {
 	}
 }
 
-// Debug writes a debugging message to the Log instance.
+// Debug writes a debugging message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Debug(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {
@@ -113,7 +128,10 @@ func (m *Multi) Debug(s string, v ...interface{}) {
 	}
 }
 
-// Warning writes a warning message to the Log instance.
+// Warning writes a warning message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Warning(s string, v ...interface{}) {
 	for i := range m.logs {
 		if x, ok := m.logs[i].(LogWriter); ok {

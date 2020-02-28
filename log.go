@@ -44,22 +44,40 @@ type Level uint8
 
 // Log is an interface for any type of struct that supports standard Logging functions.
 type Log interface {
-	// Level changes the current logging level of this Log.
-	Level(Level)
-	// Prefix changes the current logging prefix of this Log.
-	Prefix(string)
-	// Info writes a information message to the Log.
+	// SetLevel changes the current logging level of this Log.
+	SetLevel(Level)
+	// SetPrefix changes the current logging prefix of this Log.
+	SetPrefix(string)
+	// Info writes a informational message to the Global logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Info(string, ...interface{})
-	// Error writes a error message to the Log.
+	// Error writes a error message to the Global logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Error(string, ...interface{})
-	// Fatal writes a fatal message to the Log instance. This function
-	// will result in the program exiting with a non-zero error code after being called.
+	// Fatal writes a fatal message to the Global logger. This function will result in the program
+	// exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Fatal(string, ...interface{})
-	// Trace writes a tracing message to the Log.
+	// Trace writes a tracing message to the Global logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Trace(string, ...interface{})
-	// Debug writes a debugging message to the Log.
+	// Debug writes a debugging message to the Global logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Debug(string, ...interface{})
-	// Warning writes a warning message to the Log.
+	// Warning writes a warning message to the Global logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
 	Warning(string, ...interface{})
 }
 
