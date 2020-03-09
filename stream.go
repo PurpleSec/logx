@@ -44,14 +44,14 @@ func (s *stream) SetLevel(n Level) {
 	s.l = n
 }
 func (s *stream) SetPrefix(p string) {
-	s.SetPrefix(p)
+	s.Logger.SetPrefix(p)
 }
 
 // Writer returns a Log instance based on the Writer 'w' for the logging output and
 // allows specifying non-default Logging options.
 func Writer(w io.Writer, o ...Option) Log {
 	var (
-		f int = -1
+		f settingFlags = -1
 		p settingPrefix
 		l Level = invalidLevel
 	)
@@ -60,21 +60,18 @@ func Writer(w io.Writer, o ...Option) Log {
 		case setLevel:
 			l, _ = o[i].(Level)
 		case setFlags:
-			// Sanity Check
-			if v, ok := o[i].(settingFlags); ok {
-				f = int(v)
-			}
+			f, _ = o[i].(settingFlags)
 		case setPrefix:
 			p, _ = o[i].(settingPrefix)
 		}
 	}
 	if f == -1 {
-		f = DefaultFlags
+		f = settingFlags(DefaultFlags)
 	}
 	if l == invalidLevel {
 		l = Warning
 	}
-	return &stream{l, log.New(w, string(p), f)}
+	return &stream{l, log.New(w, string(p), int(f))}
 }
 
 // File will attempt to create a File backed Log instance that will write to file specified.
@@ -82,7 +79,7 @@ func Writer(w io.Writer, o ...Option) Log {
 // use the NewWriter function. This function allows specifying non-default Logging options.
 func File(s string, o ...Option) (Log, error) {
 	var (
-		f int = -1
+		f settingFlags = -1
 		p settingPrefix
 		a settingAppend
 		l Level = invalidLevel
@@ -93,10 +90,7 @@ func File(s string, o ...Option) (Log, error) {
 		case setLevel:
 			l, _ = o[i].(Level)
 		case setFlags:
-			// Sanity Check
-			if v, ok := o[i].(settingFlags); ok {
-				f = int(v)
-			}
+			f, _ = o[i].(settingFlags)
 		case setAppend:
 			a, _ = o[i].(settingAppend)
 		case setPrefix:
@@ -104,7 +98,7 @@ func File(s string, o ...Option) (Log, error) {
 		}
 	}
 	if f == -1 {
-		f = DefaultFlags
+		f = settingFlags(DefaultFlags)
 	}
 	if l == invalidLevel {
 		l = Warning
@@ -116,7 +110,7 @@ func File(s string, o ...Option) (Log, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open file %q for logging: %w", s, err)
 	}
-	return &file{s, stream{l, log.New(w, string(p), f)}}, nil
+	return &file{s, stream{l, log.New(w, string(p), int(f))}}, nil
 }
 func (s *stream) Info(m string, v ...interface{}) {
 	s.Log(Info, 0, m, v...)
