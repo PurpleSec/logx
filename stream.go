@@ -56,6 +56,9 @@ func Writer(w io.Writer, o ...Option) Log {
 		l Level = invalidLevel
 	)
 	for i := range o {
+		if o[i] == nil {
+			continue
+		}
 		switch o[i].setting() {
 		case setLevel:
 			l, _ = o[i].(Level)
@@ -86,6 +89,9 @@ func File(s string, o ...Option) (Log, error) {
 		n       = os.O_WRONLY | os.O_CREATE
 	)
 	for i := range o {
+		if o[i] == nil {
+			continue
+		}
 		switch o[i].setting() {
 		case setLevel:
 			l, _ = o[i].(Level)
