@@ -39,6 +39,5 @@ func (nop) Info(_ string, _ ...interface{})                {}
 func (nop) Error(_ string, _ ...interface{})               {}
 func (nop) Trace(_ string, _ ...interface{})               {}
 func (nop) Debug(_ string, _ ...interface{})               {}
-func (nop) Printf(_ string, _ ...interface{})              {}
 func (nop) Warning(_ string, _ ...interface{})             {}
 func (nop) Log(_ Level, _ int, _ string, _ ...interface{}) {}
