@@ -32,21 +32,22 @@ func (m *Multi) Add(l Log) {
 
 // Multiple returns a Stack struct that contains the Log instances
 // specified in the 'l' vardict.
-func Multiple(l ...Log) Multi {
-	return Multi(l)
+func Multiple(l ...Log) *Multi {
+	m := Multi(l)
+	return &m
 }
 
 // SetLevel changes the current logging level of this Log instance.
-func (m *Multi) SetLevel(l Level) {
-	for i := range *m {
-		(*m)[i].SetLevel(l)
+func (m Multi) SetLevel(l Level) {
+	for i := range m {
+		m[i].SetLevel(l)
 	}
 }
 
 // SetPrefix changes the current logging prefox of this Log instance.
-func (m *Multi) SetPrefix(p string) {
-	for i := range *m {
-		(*m)[i].SetPrefix(p)
+func (m Multi) SetPrefix(p string) {
+	for i := range m {
+		m[i].SetPrefix(p)
 	}
 }
 
@@ -54,12 +55,12 @@ func (m *Multi) SetPrefix(p string) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Info(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Info(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Info, 1, s, v...)
 		} else {
-			(*m)[i].Info(s, v...)
+			m[i].Info(s, v...)
 		}
 	}
 }
@@ -68,12 +69,12 @@ func (m *Multi) Info(s string, v ...interface{}) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Error(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Error(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Error, 1, s, v...)
 		} else {
-			(*m)[i].Error(s, v...)
+			m[i].Error(s, v...)
 		}
 	}
 }
@@ -83,14 +84,14 @@ func (m *Multi) Error(s string, v ...interface{}) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Fatal(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Fatal(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Fatal, 1, s, v...)
 		} else {
 			// Write as Error here to prevent the non-flexable logger from exiting the program
 			// before all logs can be written.
-			(*m)[i].Error(s, v...)
+			m[i].Error(s, v...)
 		}
 	}
 	if FatalExits {
@@ -102,12 +103,12 @@ func (m *Multi) Fatal(s string, v ...interface{}) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Trace(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Trace(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Trace, 1, s, v...)
 		} else {
-			(*m)[i].Trace(s, v...)
+			m[i].Trace(s, v...)
 		}
 	}
 }
@@ -116,12 +117,12 @@ func (m *Multi) Trace(s string, v ...interface{}) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Debug(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Debug(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Debug, 1, s, v...)
 		} else {
-			(*m)[i].Debug(s, v...)
+			m[i].Debug(s, v...)
 		}
 	}
 }
@@ -130,12 +131,12 @@ func (m *Multi) Debug(s string, v ...interface{}) {
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
-func (m *Multi) Warning(s string, v ...interface{}) {
-	for i := range *m {
-		if x, ok := (*m)[i].(LogWriter); ok {
+func (m Multi) Warning(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
 			x.Log(Warning, 1, s, v...)
 		} else {
-			(*m)[i].Warning(s, v...)
+			m[i].Warning(s, v...)
 		}
 	}
 }
