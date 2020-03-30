@@ -18,37 +18,35 @@ package logx
 
 import "os"
 
-// Multi is a type of Log that is an alias for an array where each Log
-// function will affect each Log instance in the array.
-type Multi struct {
-	logs []Log
-}
+// Multi is a type of Log that is an alias for an array where each Log function will affect
+// each Log instance in the array.
+type Multi []Log
 
 // Add appends the specified Log 'l' the Stack array.
 func (m *Multi) Add(l Log) {
 	if l == nil {
 		return
 	}
-	m.logs = append(m.logs, l)
+	*m = append(*m, l)
 }
 
 // Multiple returns a Stack struct that contains the Log instances
 // specified in the 'l' vardict.
-func Multiple(l ...Log) *Multi {
-	return &Multi{logs: l}
+func Multiple(l ...Log) Multi {
+	return Multi(l)
 }
 
 // SetLevel changes the current logging level of this Log instance.
 func (m *Multi) SetLevel(l Level) {
-	for i := range m.logs {
-		m.logs[i].SetLevel(l)
+	for i := range *m {
+		(*m)[i].SetLevel(l)
 	}
 }
 
 // SetPrefix changes the current logging prefox of this Log instance.
 func (m *Multi) SetPrefix(p string) {
-	for i := range m.logs {
-		m.logs[i].SetPrefix(p)
+	for i := range *m {
+		(*m)[i].SetPrefix(p)
 	}
 }
 
@@ -57,11 +55,11 @@ func (m *Multi) SetPrefix(p string) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Info(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Info, 1, s, v...)
 		} else {
-			m.logs[i].Info(s, v...)
+			(*m)[i].Info(s, v...)
 		}
 	}
 }
@@ -71,11 +69,11 @@ func (m *Multi) Info(s string, v ...interface{}) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Error(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Error, 1, s, v...)
 		} else {
-			m.logs[i].Error(s, v...)
+			(*m)[i].Error(s, v...)
 		}
 	}
 }
@@ -86,13 +84,13 @@ func (m *Multi) Error(s string, v ...interface{}) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Fatal(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Fatal, 1, s, v...)
 		} else {
 			// Write as Error here to prevent the non-flexable logger from exiting the program
 			// before all logs can be written.
-			m.logs[i].Error(s, v...)
+			(*m)[i].Error(s, v...)
 		}
 	}
 	if FatalExits {
@@ -105,11 +103,11 @@ func (m *Multi) Fatal(s string, v ...interface{}) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Trace(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Trace, 1, s, v...)
 		} else {
-			m.logs[i].Trace(s, v...)
+			(*m)[i].Trace(s, v...)
 		}
 	}
 }
@@ -119,11 +117,11 @@ func (m *Multi) Trace(s string, v ...interface{}) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Debug(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Debug, 1, s, v...)
 		} else {
-			m.logs[i].Debug(s, v...)
+			(*m)[i].Debug(s, v...)
 		}
 	}
 }
@@ -133,11 +131,11 @@ func (m *Multi) Debug(s string, v ...interface{}) {
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
 func (m *Multi) Warning(s string, v ...interface{}) {
-	for i := range m.logs {
-		if x, ok := m.logs[i].(LogWriter); ok {
+	for i := range *m {
+		if x, ok := (*m)[i].(LogWriter); ok {
 			x.Log(Warning, 1, s, v...)
 		} else {
-			m.logs[i].Warning(s, v...)
+			(*m)[i].Warning(s, v...)
 		}
 	}
 }

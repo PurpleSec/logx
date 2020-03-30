@@ -29,7 +29,8 @@ const Append = settingAppend(true)
 // given an flag options setting when created.
 //
 // This flag number may be changed before running to affect creation of new logging instances.
-var DefaultFlags = log.Ldate | log.Ltime
+// NOTE: 'log.Lmsgprefix' requires Golang 1.14.1
+var DefaultFlags = log.Ldate | log.Ltime | log.Lmsgprefix
 
 const (
 	setLevel setting = iota

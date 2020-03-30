@@ -1,3 +1,3 @@
 module github.com/PurpleSec/logx
 
-go 1.13
+go 1.14

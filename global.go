@@ -16,7 +16,7 @@
 
 package logx
 
-// Global is the default Global loging instance.  This can be used instead of passing
+// Global is the default Global loging instance. This can be used instead of passing
 // around a logging handle. All standard Log* functions or functions with a nil struct
 // will go to this loging instance.
 var Global = Console()
