@@ -119,24 +119,48 @@ func File(s string, o ...Option) (Log, error) {
 	return &file{s, stream{l, log.New(w, string(p), int(f))}}, nil
 }
 func (s *stream) Info(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Info, 0, m, v...)
+		return
+	}
 	s.Log(Info, 0, m, v...)
 }
 func (s *stream) Error(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Error, 0, m, v...)
+		return
+	}
 	s.Log(Error, 0, m, v...)
 }
 func (s *stream) Fatal(m string, v ...interface{}) {
-	s.Log(Fatal, 0, m, v...)
+	if s == nil {
+		Global.(LogWriter).Log(Fatal, 0, m, v...)
+	} else {
+		s.Log(Fatal, 0, m, v...)
+	}
 	if FatalExits {
 		os.Exit(1)
 	}
 }
 func (s *stream) Trace(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Trace, 0, m, v...)
+		return
+	}
 	s.Log(Trace, 0, m, v...)
 }
 func (s *stream) Debug(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Debug, 0, m, v...)
+		return
+	}
 	s.Log(Debug, 0, m, v...)
 }
 func (s *stream) Warning(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Warning, 0, m, v...)
+		return
+	}
 	s.Log(Warning, 0, m, v...)
 }
 func (s *stream) Log(l Level, c int, m string, v ...interface{}) {

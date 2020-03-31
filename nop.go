@@ -18,12 +18,10 @@ package logx
 
 import "os"
 
-var (
-	// NOP is a Logger that can consume all types of logs but does not do anything (a NOP).
-	// This can be used similar to context.TODO or if logging is not needed and nil log instances
-	// are not available or allowed.
-	NOP = nop{}
-)
+// NOP is a Logger that can consume all types of logs but does not do anything (a NOP).
+// This can be used similar to context.TODO or if logging is not needed and nil log instances
+// are not available or allowed.
+var NOP = nop{}
 
 type nop struct{}
 
