@@ -26,6 +26,7 @@
 //
 // Example using LogX:
 //
+//
 // package main
 //
 // import "github.com/PurpleSec/logx"
@@ -56,5 +57,6 @@
 //    multi.Fatal("OMG BAD STUFF")
 //    multi.Trace("This won't get logged, yay!")
 // }
+//
 //
 package logx
