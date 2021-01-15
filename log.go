@@ -31,6 +31,12 @@ const (
 	// Fatal means the program cannot continue when this event occurs. Normally the program will exit after this.
 	// set 'logx.FatalExits' to 'false' to disable exiting when a Fatal log entry is triggered.
 	Fatal
+	// Panic is a special level only used by the 'Panic*' functions. This will act similar to the 'Fatal' level
+	// but will trigger a Go 'panic()' call instead once log writing is complete.
+	Panic
+	// Print is a special level only used for LogWriters. This level instructs the LogWriter to use it's inbuilt
+	// print level for the specified message. Attempting to use this out of this context will fail.
+	Print
 	invalidLevel
 )
 
@@ -48,33 +54,70 @@ type Log interface {
 	SetLevel(Level)
 	// SetPrefix changes the current logging prefix of this Log.
 	SetPrefix(string)
-	// Info writes a informational message to the Global logger.
+	// SetPrintLevel sets the logging level used when 'Print*' statements are called.
+	SetPrintLevel(Level)
+	// Print writes a message to the logger.
+	// The function arguments are similar to fmt.Sprint and fmt.Print. The only argument is a vardict of
+	// interfaces that can be used to output a string value.
+	// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+	// logging message.
+	Print(...interface{})
+	// Panic writes a panic message to the logger.
+	// This function will result in the program exiting with a Go 'panic()' after being called. The function
+	// arguments are similar to fmt.Sprint and fmt.Print. The only argument is a vardict of interfaces that can
+	// be used to output a string value.
+	Panic(...interface{})
+	// Println writes a message to the logger.
+	// The function arguments are similar to fmt.Sprintln and fmt.Println. The only argument is a vardict of
+	// interfaces that can be used to output a string value.
+	// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+	// logging message.
+	Println(...interface{})
+	// Panicln writes a panic message to the logger.
+	// This function will result in the program exiting with a Go 'panic()' after being called. The function
+	// arguments are similar to fmt.Sprintln and fmt.Println. The only argument is a vardict of interfaces that
+	// can be used to output a string value.
+	Panicln(...interface{})
+	// Info writes a informational message to the logger.
 	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 	// a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
 	Info(string, ...interface{})
-	// Error writes a error message to the Global logger.
+	// Error writes a error message to the logger.
 	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 	// a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
 	Error(string, ...interface{})
-	// Fatal writes a fatal message to the Global logger. This function will result in the program
-	// exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
-	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-	// a string that can contain formatting characters. The second argument is a vardict of
+	// Fatal writes a fatal message to the logger.
+	// This function will result in the program exiting with a non-zero error code after being called, unless
+	// the logx.FatalExits' setting is 'false'. The function arguments are similar to fmt.Sprintf and fmt.Printf.
+	// The first argument is a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
 	Fatal(string, ...interface{})
-	// Trace writes a tracing message to the Global logger.
+	// Trace writes a tracing message to the logger.
 	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 	// a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
 	Trace(string, ...interface{})
-	// Debug writes a debugging message to the Global logger.
+	// Debug writes a debugging message to the logger.
 	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 	// a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
 	Debug(string, ...interface{})
-	// Warning writes a warning message to the Global logger.
+	// Printf writes a message to the logger.
+	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+	// a string that can contain formatting characters. The second argument is a vardict of
+	// interfaces that can be omitted or used in the supplied format string.
+	// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+	// logging message.
+	Printf(string, ...interface{})
+	// Panicf writes a panic message to the logger.
+	// This function will result in the program exiting with a Go 'panic()' after being called. The function
+	// arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is a string that can contain
+	// formatting characters. The second argument is a vardict of interfaces that can be omitted or used in
+	// the supplied format string.
+	Panicf(string, ...interface{})
+	// Warning writes a warning message to the logger.
 	// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 	// a string that can contain formatting characters. The second argument is a vardict of
 	// interfaces that can be omitted or used in the supplied format string.
@@ -85,10 +128,10 @@ type Log interface {
 // 'Log' which takes a Level to log, the additional stack depth (can be zero), and the message and optional arguments
 // to be logged. This function is used as a "quick-logging" helper and is preferred by the Multi logging struct.
 //
-// This funcion must ONLY log and not preform any other operations such as exiting on a Fatal logging level. Use the
-// higher level 'Fatal' function for those additional operations.
+// This funcion must ONLY log and not preform any other operations such as exiting on a Fatal or Panic logging level.
+// Use the higher level 'Fatal' and 'Panic' functions for those additional operations.
 //
-// The higher level calls may use this function to simplify logging.
+// The higher level calls may use this function to simplify logging and comply with the logx Multi-logger.
 type LogWriter interface {
 	Log(Level, int, string, ...interface{})
 }
@@ -108,6 +151,31 @@ func (l Level) String() string {
 		return "ERROR"
 	case Fatal:
 		return "FATAL"
+	case Panic:
+		return "PANIC"
 	}
-	return ""
+	return "INVAL"
+}
+
+// Normal will attempt to normalize the requested log level. This will check the supplied integer and will return
+// it as a valid log level if in bounds of the supported log levels. If not, the specified normal log level will
+// be returned instead.
+func Normal(req int, normal Level) Level {
+	if req < 0 {
+		return normal
+	}
+	if req > int(Panic) {
+		return normal
+	}
+	return Level(req)
+}
+
+// NormalUint will attempt to normalize the requested log level. This will check the supplied integer and will return
+// it as a valid log level if in bounds of the supported log levels. If not, the specified normal log level will
+// be returned instead. This function is made to specifically work on unsigned ints instead.
+func NormalUint(req uint, normal Level) Level {
+	if req > uint(Panic) {
+		return normal
+	}
+	return Level(req)
 }

@@ -33,6 +33,7 @@ type file struct {
 }
 type stream struct {
 	l Level
+	p Level
 	*log.Logger
 }
 
@@ -46,14 +47,48 @@ func (s *stream) SetLevel(n Level) {
 func (s *stream) SetPrefix(p string) {
 	s.Logger.SetPrefix(p)
 }
+func (s *stream) SetPrintLevel(n Level) {
+	s.p = n
+}
+
+func (s *stream) Print(v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(s.p, 0, "", v...)
+		return
+	}
+	s.Log(s.p, 0, "", v...)
+}
+func (s *stream) Panic(v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Panic, 0, "", v...)
+	} else {
+		s.Log(Panic, 0, "", v...)
+	}
+	panic(fmt.Sprintln(v...))
+}
+func (s *stream) Println(v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(s.p, 0, "", v...)
+		return
+	}
+	s.Log(s.p, 0, "", v...)
+}
+func (s *stream) Panicln(v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Panic, 0, "", v...)
+	} else {
+		s.Log(Panic, 0, "", v...)
+	}
+	panic(fmt.Sprintln(v...))
+}
 
 // Writer returns a Log instance based on the Writer 'w' for the logging output and
 // allows specifying non-default Logging options.
 func Writer(w io.Writer, o ...Option) Log {
 	var (
-		f settingFlags = -1
-		p settingPrefix
-		l Level = invalidLevel
+		f    settingFlags = -1
+		p    settingPrefix
+		l, k Level = invalidLevel, invalidLevel
 	)
 	for i := range o {
 		if o[i] == nil {
@@ -64,6 +99,8 @@ func Writer(w io.Writer, o ...Option) Log {
 			l, _ = o[i].(Level)
 		case setFlags:
 			f, _ = o[i].(settingFlags)
+		case setPrint:
+			k, _ = o[i].(Level)
 		case setPrefix:
 			p, _ = o[i].(settingPrefix)
 		}
@@ -74,7 +111,10 @@ func Writer(w io.Writer, o ...Option) Log {
 	if l == invalidLevel {
 		l = Warning
 	}
-	return &stream{l, log.New(w, string(p), int(f))}
+	if k == invalidLevel {
+		k = Info
+	}
+	return &stream{l, k, log.New(w, string(p), int(f))}
 }
 
 // File will attempt to create a File backed Log instance that will write to file specified.
@@ -82,11 +122,11 @@ func Writer(w io.Writer, o ...Option) Log {
 // use the NewWriter function. This function allows specifying non-default Logging options.
 func File(s string, o ...Option) (Log, error) {
 	var (
-		f settingFlags = -1
-		p settingPrefix
-		a settingAppend
-		l Level = invalidLevel
-		n       = os.O_WRONLY | os.O_CREATE
+		f    settingFlags = -1
+		p    settingPrefix
+		a    settingAppend
+		l, k Level = invalidLevel, invalidLevel
+		n          = os.O_WRONLY | os.O_CREATE
 	)
 	for i := range o {
 		if o[i] == nil {
@@ -97,6 +137,8 @@ func File(s string, o ...Option) (Log, error) {
 			l, _ = o[i].(Level)
 		case setFlags:
 			f, _ = o[i].(settingFlags)
+		case setPrint:
+			k, _ = o[i].(Level)
 		case setAppend:
 			a, _ = o[i].(settingAppend)
 		case setPrefix:
@@ -109,6 +151,9 @@ func File(s string, o ...Option) (Log, error) {
 	if l == invalidLevel {
 		l = Warning
 	}
+	if k == invalidLevel {
+		k = Info
+	}
 	if a {
 		n |= os.O_APPEND
 	}
@@ -116,7 +161,7 @@ func File(s string, o ...Option) (Log, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open file %q for logging: %w", s, err)
 	}
-	return &file{s, stream{l, log.New(w, string(p), int(f))}}, nil
+	return &file{s, stream{l, k, log.New(w, string(p), int(f))}}, nil
 }
 func (s *stream) Info(m string, v ...interface{}) {
 	if s == nil {
@@ -156,6 +201,21 @@ func (s *stream) Debug(m string, v ...interface{}) {
 	}
 	s.Log(Debug, 0, m, v...)
 }
+func (s *stream) Printf(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(s.p, 0, m, v...)
+		return
+	}
+	s.Log(s.p, 0, m, v...)
+}
+func (s *stream) Panicf(m string, v ...interface{}) {
+	if s == nil {
+		Global.(LogWriter).Log(Panic, 0, m, v...)
+	} else {
+		s.Log(Panic, 0, m, v...)
+	}
+	panic(fmt.Sprintf(m, v...))
+}
 func (s *stream) Warning(m string, v ...interface{}) {
 	if s == nil {
 		Global.(LogWriter).Log(Warning, 0, m, v...)
@@ -164,7 +224,23 @@ func (s *stream) Warning(m string, v ...interface{}) {
 	s.Log(Warning, 0, m, v...)
 }
 func (s *stream) Log(l Level, c int, m string, v ...interface{}) {
+	if l == Print {
+		// Duplicate code here to prevent inf loops.
+		if s.l > s.p {
+			return
+		}
+		if len(m) == 0 {
+			s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", s.p.String(), fmt.Sprint(v...)))
+			return
+		}
+		s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", s.p.String(), fmt.Sprintf(m, v...)))
+		return
+	}
 	if s.l > l {
+		return
+	}
+	if len(m) == 0 {
+		s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", l.String(), fmt.Sprint(v...)))
 		return
 	}
 	s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", l.String(), fmt.Sprintf(m, v...)))

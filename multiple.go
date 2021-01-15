@@ -16,7 +16,10 @@
 
 package logx
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 // Multi is a type of Log that is an alias for an array where each Log function will affect
 // each Log instance in the array.
@@ -51,7 +54,78 @@ func (m Multi) SetPrefix(p string) {
 	}
 }
 
-// Info writes a informational message to the Global logger.
+// SetPrintLevel sets the logging level used when 'Print*' statements are called.
+func (m Multi) SetPrintLevel(n Level) {
+	for i := range m {
+		m[i].SetPrintLevel(n)
+	}
+}
+
+// Print writes a message to the logger.
+// The function arguments are similar to fmt.Sprint and fmt.Print. The only argument is a vardict of
+// interfaces that can be used to output a string value.
+// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+// logging message.
+func (m Multi) Print(v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Print, 1, "", v...)
+		} else {
+			m[i].Print(v...)
+		}
+	}
+}
+
+// Panic writes a panic message to the logger.
+// This function will result in the program exiting with a Go 'panic()' after being called. The function arguments
+// are similar to fmt.Sprint and fmt.Print. The only argument is a vardict of interfaces that can be used to output
+// a string value.
+func (m Multi) Panic(v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Panic, 1, "", v...)
+		} else {
+			// Write as Error here to prevent the non-flexable logger from exiting the program
+			// before all logs can be written.
+			m[i].Error("", v...)
+		}
+	}
+	panic(fmt.Sprint(v...))
+}
+
+// Println writes a message to the logger.
+// The function arguments are similar to fmt.Sprintln and fmt.Println. The only argument is a vardict of
+// interfaces that can be used to output a string value.
+// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+// logging message.
+func (m Multi) Println(v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Print, 1, "", v...)
+		} else {
+			m[i].Println(v...)
+		}
+	}
+}
+
+// Panicln writes a panic message to the logger.
+// This function will result in the program exiting with a Go 'panic()' after being called. The function arguments
+// are similar to fmt.Sprintln and fmt.Println. The only argument is a vardict of interfaces that can be used to
+// output a string value.
+func (m Multi) Panicln(v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Panic, 1, "", v...)
+		} else {
+			// Write as Error here to prevent the non-flexable logger from exiting the program
+			// before all logs can be written.
+			m[i].Error("", v...)
+		}
+	}
+	panic(fmt.Sprint(v...))
+}
+
+// Info writes a informational message to the logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
@@ -65,7 +139,7 @@ func (m Multi) Info(s string, v ...interface{}) {
 	}
 }
 
-// Error writes a error message to the Global logger.
+// Error writes a error message to the logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
@@ -79,7 +153,8 @@ func (m Multi) Error(s string, v ...interface{}) {
 	}
 }
 
-// Fatal writes a fatal message to the Global logger. This function will result in the program
+// Fatal writes a fatal message to the logger.
+// This function will result in the program
 // exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
@@ -99,7 +174,7 @@ func (m Multi) Fatal(s string, v ...interface{}) {
 	}
 }
 
-// Trace writes a tracing message to the Global logger.
+// Trace writes a tracing message to the logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
@@ -113,7 +188,7 @@ func (m Multi) Trace(s string, v ...interface{}) {
 	}
 }
 
-// Debug writes a debugging message to the Global logger.
+// Debug writes a debugging message to the logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.
@@ -127,7 +202,40 @@ func (m Multi) Debug(s string, v ...interface{}) {
 	}
 }
 
-// Warning writes a warning message to the Global logger.
+// Printf writes a message to the logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+// logging message.
+func (m Multi) Printf(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Print, 1, s, v...)
+		} else {
+			m[i].Printf(s, v...)
+		}
+	}
+}
+
+// Panicf writes a panic message to the logger.
+// This function will result in the program exiting with a Go 'panic()' after being called. The function arguments
+// are similar to fmt.Sprintf and fmt.Printf. The first argument is a string that can contain formatting characters.
+// The second argument is a vardict of interfaces that can be omitted or used in the supplied format string.
+func (m Multi) Panicf(s string, v ...interface{}) {
+	for i := range m {
+		if x, ok := m[i].(LogWriter); ok {
+			x.Log(Panic, 1, s, v...)
+		} else {
+			// Write as Error here to prevent the non-flexable logger from exiting the program
+			// before all logs can be written.
+			m[i].Error(s, v...)
+		}
+	}
+	panic(fmt.Sprintf(s, v...))
+}
+
+// Warning writes a warning message to the logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of
 // interfaces that can be omitted or used in the supplied format string.

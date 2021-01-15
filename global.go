@@ -92,6 +92,30 @@ func LogDebug(m string, v ...interface{}) {
 	Global.Debug(m, v)
 }
 
+// LogPrint writes a message to the Global logger.
+// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
+// a string that can contain formatting characters. The second argument is a vardict of
+// interfaces that can be omitted or used in the supplied format string.
+// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
+// logging message.
+func LogPrint(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
+	Global.Printf(m, v)
+}
+
+// LogPanic writes a panic message to the Global logger. This function will result in the program
+// exiting with a Go 'panic()' after being called. The function arguments are similar to fmt.Sprintf and
+// fmt.Printf. The first argument is a string that can contain formatting characters. The second argument
+// is a vardict of interfaces that can be omitted or used in the supplied format string.
+func LogPanic(m string, v ...interface{}) {
+	if Global == nil {
+		return
+	}
+	Global.Panicf(m, v)
+}
+
 // LogWarning writes a warning message to the Global logger.
 // The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
 // a string that can contain formatting characters. The second argument is a vardict of

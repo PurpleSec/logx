@@ -35,12 +35,14 @@ var DefaultFlags = log.Ldate | log.Ltime | log.Lmsgprefix
 const (
 	setLevel setting = iota
 	setFlags
+	setPrint
 	setAppend
 	setPrefix
 )
 
 type setting uint8
 type settingFlags int
+type settingPrint uint8
 type settingAppend bool
 type settingPrefix string
 
@@ -64,11 +66,20 @@ func Flags(f int) Option {
 func Prefix(p string) Option {
 	return settingPrefix(p)
 }
+
+// PrintLevel will return an Option interface that will set the level used by the 'Print*' functions.
+// This is similar to calling the 'SetPrintLevel' function.
+func PrintLevel(l Level) Option {
+	return settingPrint(l)
+}
 func (l Level) setting() setting {
 	return setLevel
 }
 func (settingFlags) setting() setting {
 	return setFlags
+}
+func (settingPrint) setting() setting {
+	return setPrint
 }
 func (settingAppend) setting() setting {
 	return setAppend
