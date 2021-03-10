@@ -113,7 +113,7 @@ func Writer(w io.Writer, o ...Option) Log {
 	if k == invalidLevel {
 		k = Info
 	}
-	return &stream{l, k, log.New(w, string(p), int(f))}
+	return &stream{l: l, p: k, Logger: log.New(w, string(p), int(f))}
 }
 
 // File will attempt to create a File backed Log instance that will write to file specified.
@@ -160,7 +160,7 @@ func File(s string, o ...Option) (Log, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open file %q for logging: %w", s, err)
 	}
-	return &file{s, stream{l, k, log.New(w, string(p), int(f))}}, nil
+	return &file{f: s, stream: stream{l: l, p: k, Logger: log.New(w, string(p), int(f))}}, nil
 }
 func (s *stream) Info(m string, v ...interface{}) {
 	if s == nil {
