@@ -27,13 +27,13 @@ import (
 var DefaultConsole io.Writer = os.Stderr
 
 type file struct {
-	f string
 	stream
+	f string
 }
 type stream struct {
+	*log.Logger
 	l Level
 	p Level
-	*log.Logger
 }
 
 // Console returns a console logger that uses the Console writer.
