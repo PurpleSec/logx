@@ -1,4 +1,4 @@
-// Copyright 2021 PurpleSec Team
+// Copyright 2021 - 2022 PurpleSec Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@
 // - Log to multiple logs simultaneously!
 // - Log to any io.Writer!
 //
-// LogX supports all the options of the standard Golang log library with the addition of the Trace, Debug, Info, Warning and Error logging levels.
+// LogX supports all the options of the standard Golang log library with the
+// addition of the Trace, Debug, Info, Warning and Error logging levels.
 //
 // Example using LogX:
 //

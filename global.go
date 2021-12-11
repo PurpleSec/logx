@@ -1,4 +1,4 @@
-// Copyright 2021 PurpleSec Team
+// Copyright 2021 - 2022 PurpleSec Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,21 @@
 package logx
 
 // Global is the default Global loging instance. This can be used instead of passing
-// around a logging handle. All standard Log* functions or functions with a nil struct
-// will go to this loging instance.
+// around a logging handle.
+//
+// All standard 'Log*' functions or functions with a nil struct will go to this
+// loging instance.
 var Global = Console()
 
 // LogInfo writes a informational message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogInfo(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -35,12 +39,14 @@ func LogInfo(m string, v ...interface{}) {
 }
 
 // LogError writes a error message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogError(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -48,14 +54,17 @@ func LogError(m string, v ...interface{}) {
 	Global.Error(m, v)
 }
 
-// LogFatal writes a fatal message to the Global logger. This function will result in the program
-// exiting with a non-zero error code after being called, unless the logx.FatalExits' setting is 'false'.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
+// LogFatal writes a fatal message to the Global logger.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// This function will result in the program exiting with a non-zero error code
+// after being called, unless the 'logx.FatalExits' setting is 'false'. The
+// function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The first
+// argument is a string that can contain formatting characters. The second argument
+// is a vardict of interfaces that can be omitted or used in the supplied format
+// string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogFatal(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -64,12 +73,14 @@ func LogFatal(m string, v ...interface{}) {
 }
 
 // LogTrace writes a tracing message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogTrace(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -78,12 +89,14 @@ func LogTrace(m string, v ...interface{}) {
 }
 
 // LogDebug writes a debugging message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogDebug(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -92,11 +105,17 @@ func LogDebug(m string, v ...interface{}) {
 }
 
 // LogPrint writes a message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
-// This function is affected by the setting of 'SetPrintLevel'. By default, this will print as an 'Info'
-// logging message.
+//
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is affected by the setting of 'Global.SetPrintLevel'. By default,
+// this will print as an 'Info' logging message.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogPrint(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -104,10 +123,16 @@ func LogPrint(m string, v ...interface{}) {
 	Global.Printf(m, v)
 }
 
-// LogPanic writes a panic message to the Global logger. This function will result in the program
-// exiting with a Go 'panic()' after being called. The function arguments are similar to fmt.Sprintf and
-// fmt.Printf. The first argument is a string that can contain formatting characters. The second argument
-// is a vardict of interfaces that can be omitted or used in the supplied format string.
+// LogPanic writes a panic message to the Global logger.
+//
+// This function will result in the program exiting with a Go 'panic()' after
+// being called. The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'.
+// The first argument is a string that can contain formatting characters. The
+// second argument is a vardict of interfaces that can be omitted or used in
+// the supplied format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogPanic(m string, v ...interface{}) {
 	if Global == nil {
 		return
@@ -116,12 +141,14 @@ func LogPanic(m string, v ...interface{}) {
 }
 
 // LogWarning writes a warning message to the Global logger.
-// The function arguments are similar to fmt.Sprintf and fmt.Printf. The first argument is
-// a string that can contain formatting characters. The second argument is a vardict of
-// interfaces that can be omitted or used in the supplied format string.
 //
-// This function is used only as a handy quick usage solution. It is recommended to use a
-// direct function call on a logger or the Global logger instead.
+// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
+// first argument is a string that can contain formatting characters. The second
+// argument is a vardict of interfaces that can be omitted or used in the supplied
+// format string.
+//
+// This function is used only as a handy quick usage solution. It is recommended
+// to use a direct function call on a logger or the Global logger instead.
 func LogWarning(m string, v ...interface{}) {
 	if Global == nil {
 		return

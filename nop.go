@@ -1,4 +1,4 @@
-// Copyright 2021 PurpleSec Team
+// Copyright 2021 - 2022 PurpleSec Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,9 +20,11 @@ import (
 	"os"
 )
 
-// NOP is a Logger that can consume all types of logs but does not do anything (a NOP).
-// This can be used similar to context.TODO or if logging is not needed and nil log instances
-// are not available or allowed.
+// NOP is a Logger that can consume all types of logs but does not do anything
+// (a NOP).
+//
+// This can be used similar to context.TODO or if logging is not needed and nil
+// log instances are not available or allowed.
 var NOP = nop{}
 
 type nop struct{}

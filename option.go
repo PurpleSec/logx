@@ -1,4 +1,4 @@
-// Copyright 2021 PurpleSec Team
+// Copyright 2021 - 2022 PurpleSec Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,21 +15,20 @@
 
 package logx
 
-import "log"
-
-// Append is a loging setting that instructs the Log to override the default log file truncation
-// behavior. When this is used in the options for creating a file backed log instance, the new logged data
-// will be appended to any previous data that the file contains.
+// Append is a loging setting that instructs the Log to override the default log
+// file truncation behavior. When this is used in the options for creating a file
+// backed log instance, the new logged data will be appended to any previous data
+// that the file contains.
 //
 // This setting has no effect on non-file backed logging instances.
 const Append = settingAppend(true)
 
-// DefaultFlags is the default bitwise flag value that is used for new logging instances that are not
-// given an flag options setting when created.
+// DefaultFlags is the default bitwise flag value that is used for new logging
+// instances that are not given an flag options setting when created.
 //
-// This flag number may be changed before running to affect creation of new logging instances.
-// NOTE: 'log.Lmsgprefix' requires Golang 1.14.1
-var DefaultFlags = log.Ldate | log.Ltime | log.Lmsgprefix
+// This flag number may be changed before running to affect creation of new
+// logging instances.
+var DefaultFlags = FlagStandard
 
 const (
 	setLevel setting = iota
@@ -40,14 +39,15 @@ const (
 )
 
 type setting uint8
-type settingFlags int
+type settingFlags int8
 type settingPrint uint8
 type settingAppend bool
 type settingPrefix string
 
 // Option is an interface that allows for passing a vardict of potential
-// settings that can be used during creation of a logging instance. This interface
-// type will only be fulfilled by interanal functions.
+// settings that can be used during creation of a logging instance.
+//
+// This interface type will only be fulfilled by interanal functions.
 type Option interface {
 	setting() setting
 }
@@ -66,7 +66,9 @@ func Prefix(p string) Option {
 	return settingPrefix(p)
 }
 
-// PrintLevel will return an Option interface that will set the level used by the 'Print*' functions.
+// PrintLevel will return an Option interface that will set the level used by
+// the 'Print*' functions.
+//
 // This is similar to calling the 'SetPrintLevel' function.
 func PrintLevel(l Level) Option {
 	return settingPrint(l)

@@ -1,4 +1,4 @@
-// Copyright 2021 PurpleSec Team
+// Copyright 2021 - 2022 PurpleSec Team
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,13 +16,15 @@
 package logx
 
 import (
+	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
-// DefaultConsole is a pointer to the output that all the console Log structs will use when created.
+// DefaultConsole is a pointer to the output that all the console Log structs
+// will use when created.
+//
 // This can be set to any io.Writer. The default is the Stderr console.
 var DefaultConsole io.Writer = os.Stderr
 
@@ -31,7 +33,7 @@ type file struct {
 	f string
 }
 type stream struct {
-	*log.Logger
+	*logger
 	l Level
 	p Level
 }
@@ -44,15 +46,14 @@ func (s *stream) SetLevel(n Level) {
 	s.l = n
 }
 func (s *stream) SetPrefix(p string) {
-	s.Logger.SetPrefix(p)
+	s.logger.SetPrefix(p)
 }
 func (s *stream) SetPrintLevel(n Level) {
 	s.p = n
 }
-
 func (s *stream) Print(v ...interface{}) {
 	if s == nil {
-		Global.(LogWriter).Log(s.p, 0, "", v...)
+		Global.(LogWriter).Log(Print, 0, "", v...)
 		return
 	}
 	s.Log(s.p, 0, "", v...)
@@ -67,7 +68,7 @@ func (s *stream) Panic(v ...interface{}) {
 }
 func (s *stream) Println(v ...interface{}) {
 	if s == nil {
-		Global.(LogWriter).Log(s.p, 0, "", v...)
+		Global.(LogWriter).Log(Print, 0, "", v...)
 		return
 	}
 	s.Log(s.p, 0, "", v...)
@@ -81,13 +82,13 @@ func (s *stream) Panicln(v ...interface{}) {
 	panic(fmt.Sprintln(v...))
 }
 
-// Writer returns a Log instance based on the Writer 'w' for the logging output and
-// allows specifying non-default Logging options.
+// Writer returns a Log instance based on the Writer 'w' for the logging output
+// and allows specifying non-default Logging options.
 func Writer(w io.Writer, o ...Option) Log {
 	var (
 		f    settingFlags = -1
 		p    settingPrefix
-		l, k Level = invalidLevel, invalidLevel
+		l, k = invalidLevel, invalidLevel
 	)
 	for i := range o {
 		if o[i] == nil {
@@ -113,19 +114,21 @@ func Writer(w io.Writer, o ...Option) Log {
 	if k == invalidLevel {
 		k = Info
 	}
-	return &stream{l: l, p: k, Logger: log.New(w, string(p), int(f))}
+	return &stream{l: l, p: k, logger: &logger{w: w, p: []byte(p), f: uint8(f)}}
 }
 
-// File will attempt to create a File backed Log instance that will write to file specified.
-// This function will truncate the file before starting a new Log. If you need to append to a existing log file.
-// use the NewWriter function. This function allows specifying non-default Logging options.
+// File will attempt to create a File backed Log instance that will write to file
+// specified.
+//
+// This function will truncate the file before starting a new Log if the 'Append'
+// option isn't specified.
 func File(s string, o ...Option) (Log, error) {
 	var (
 		f    settingFlags = -1
 		p    settingPrefix
 		a    settingAppend
-		l, k Level = invalidLevel, invalidLevel
-		n          = os.O_WRONLY | os.O_CREATE
+		n    = os.O_WRONLY | os.O_CREATE
+		l, k = invalidLevel, invalidLevel
 	)
 	for i := range o {
 		if o[i] == nil {
@@ -158,9 +161,9 @@ func File(s string, o ...Option) (Log, error) {
 	}
 	w, err := os.OpenFile(s, n, 0644)
 	if err != nil {
-		return nil, fmt.Errorf("cannot open file %q for logging: %w", s, err)
+		return nil, errors.New(`cannot open "` + s + `" for logging: ` + err.Error())
 	}
-	return &file{f: s, stream: stream{l: l, p: k, Logger: log.New(w, string(p), int(f))}}, nil
+	return &file{f: s, stream: stream{l: l, p: k, logger: &logger{w: w, p: []byte(p), f: uint8(f)}}}, nil
 }
 func (s *stream) Info(m string, v ...interface{}) {
 	if s == nil {
@@ -202,7 +205,7 @@ func (s *stream) Debug(m string, v ...interface{}) {
 }
 func (s *stream) Printf(m string, v ...interface{}) {
 	if s == nil {
-		Global.(LogWriter).Log(s.p, 0, m, v...)
+		Global.(LogWriter).Log(Print, 0, m, v...)
 		return
 	}
 	s.Log(s.p, 0, m, v...)
@@ -224,23 +227,23 @@ func (s *stream) Warning(m string, v ...interface{}) {
 }
 func (s *stream) Log(l Level, c int, m string, v ...interface{}) {
 	if l == Print {
-		// Duplicate code here to prevent inf loops.
+		// NOTE(dij): Duplicate code here to prevent loops.
 		if s.l > s.p {
 			return
 		}
 		if len(m) == 0 {
-			s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", s.p.String(), fmt.Sprint(v...)))
-			return
+			s.Output(3+c, "["+s.p.String()+"]: "+fmt.Sprint(v...))
+		} else {
+			s.Output(3+c, "["+s.p.String()+"]: "+fmt.Sprintf(m, v...))
 		}
-		s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", s.p.String(), fmt.Sprintf(m, v...)))
 		return
 	}
 	if s.l > l {
 		return
 	}
 	if len(m) == 0 {
-		s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", l.String(), fmt.Sprint(v...)))
-		return
+		s.Output(3+c, "["+l.String()+"]: "+fmt.Sprint(v...))
+	} else {
+		s.Output(3+c, "["+l.String()+"]: "+fmt.Sprintf(m, v...))
 	}
-	s.Logger.Output(3+c, fmt.Sprintf("[%s]: %s\n", l.String(), fmt.Sprintf(m, v...)))
 }
