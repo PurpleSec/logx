@@ -13,7 +13,7 @@
 // limitations under the License.
 //
 
-// Package logx is a easy to use logging library for usage in any Golang application.
+// Package logx is an easy to use logging library for usage in any Golang application.
 //
 // With LogX you can:
 // - Log to Console!

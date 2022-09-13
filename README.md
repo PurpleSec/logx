@@ -1,6 +1,6 @@
 # LogX - Simple Golang Logging Library
 
-LogX is a easy to use logging library for usage in any Golang application.
+LogX is an easy to use logging library for usage in any Golang application.
 
 With LogX you can:
 

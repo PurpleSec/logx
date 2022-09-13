@@ -101,14 +101,14 @@ const (
 //
 // NOTE: 'Lmsgprefix' has no effect.
 const (
-	Ldate         uint8 = FlagDate
-	Ltime         uint8 = FlagTime
-	Lmicroseconds uint8 = FlagMicroseconds
-	Llongfile     uint8 = FlagFileLong
-	Lshortfile    uint8 = FlagFileShort
-	LUTC          uint8 = FlagTimeUTC
+	Ldate               = FlagDate
+	Ltime               = FlagTime
+	Lmicroseconds       = FlagMicroseconds
+	Llongfile           = FlagFileLong
+	Lshortfile          = FlagFileShort
+	LUTC                = FlagTimeUTC
 	Lmsgprefix    uint8 = 0
-	LstdFlags     uint8 = FlagStandard
+	LstdFlags           = FlagStandard
 )
 
 // FatalExits is a boolean setting that determines if a call to Fatal or LogFatal
@@ -160,14 +160,14 @@ type Log interface {
 	// 'fmt.Println'. The only argument is a vardict of interfaces that
 	// can be used to output a string value.
 	Panicln(...interface{})
-	// Info writes a informational message to the logger.
+	// Info writes an informational message to the logger.
 	//
 	// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 	// first argument is a string that can contain formatting characters. The second
 	// argument is a vardict of interfaces that can be omitted or used in the supplied
 	// format string.
 	Info(string, ...interface{})
-	// Error writes a error message to the logger.
+	// Error writes an error message to the logger.
 	//
 	// The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 	// first argument is a string that can contain formatting characters. The second

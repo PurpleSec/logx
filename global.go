@@ -15,14 +15,14 @@
 
 package logx
 
-// Global is the default Global loging instance. This can be used instead of passing
+// Global is the default Global logging instance. This can be used instead of passing
 // around a logging handle.
 //
 // All standard 'Log*' functions or functions with a nil struct will go to this
-// loging instance.
+// logging instance.
 var Global = Console()
 
-// LogInfo writes a informational message to the Global logger.
+// LogInfo writes an informational message to the Global logger.
 //
 // The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 // first argument is a string that can contain formatting characters. The second
@@ -38,7 +38,7 @@ func LogInfo(m string, v ...interface{}) {
 	Global.Info(m, v)
 }
 
-// LogError writes a error message to the Global logger.
+// LogError writes an error message to the Global logger.
 //
 // The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 // first argument is a string that can contain formatting characters. The second

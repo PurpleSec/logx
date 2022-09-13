@@ -132,7 +132,7 @@ func (m Multi) Panicln(v ...interface{}) {
 	panic(fmt.Sprint(v...))
 }
 
-// Info writes a informational message to the logger.
+// Info writes n informational message to the logger.
 //
 // The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 // first argument is a string that can contain formatting characters. The second
@@ -148,7 +148,7 @@ func (m Multi) Info(s string, v ...interface{}) {
 	}
 }
 
-// Error writes a error message to the logger.
+// Error writes an error message to the logger.
 //
 // The function arguments are similar to 'fmt.Sprintf' and 'fmt.Printf'. The
 // first argument is a string that can contain formatting characters. The second

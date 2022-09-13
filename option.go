@@ -15,7 +15,7 @@
 
 package logx
 
-// Append is a loging setting that instructs the Log to override the default log
+// Append is a logging setting that instructs the Log to override the default log
 // file truncation behavior. When this is used in the options for creating a file
 // backed log instance, the new logged data will be appended to any previous data
 // that the file contains.
@@ -24,7 +24,7 @@ package logx
 const Append = settingAppend(true)
 
 // DefaultFlags is the default bitwise flag value that is used for new logging
-// instances that are not given an flag options setting when created.
+// instances that are not given a flag options setting when created.
 //
 // This flag number may be changed before running to affect creation of new
 // logging instances.
@@ -47,7 +47,7 @@ type settingPrefix string
 // Option is an interface that allows for passing a vardict of potential
 // settings that can be used during creation of a logging instance.
 //
-// This interface type will only be fulfilled by interanal functions.
+// This interface type will only be fulfilled by internal functions.
 type Option interface {
 	setting() setting
 }
