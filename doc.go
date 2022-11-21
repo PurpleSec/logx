@@ -35,7 +35,7 @@
 //     New Console Log
 //     con := logx.Console(logx.Info)
 //     con.Error("Testing Error!")
-//     con.Info("Informational Numbers: %d %d %d...", 1, 2, 3)
+//     con.Info("Informational Numbers: %d %d %d..", 1, 2, 3)
 //
 //     New File Log
 //     fil, err := logx.File("log.log", logx.Debug)
