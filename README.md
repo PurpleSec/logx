@@ -45,3 +45,5 @@ func main() {
     multi.Trace("This won't get logged, yay!")
 }
 ```
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z4121TDS)
